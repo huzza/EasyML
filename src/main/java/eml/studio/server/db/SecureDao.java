@@ -92,7 +92,6 @@ public class SecureDao extends BaseDao {
 
 		List<String> conds = new LinkedList<String>();
 		for (Map.Entry<String, Field> entry : fields.entrySet()) {
-			String name = entry.getKey();
 			Field field = entry.getValue();
 			String invoke = toString(obj, field);
 
@@ -136,7 +135,8 @@ public class SecureDao extends BaseDao {
 			for (Map.Entry<String, Field> entry : fields.entrySet()) {
 				String name = entry.getKey();
 				Field field = entry.getValue();
-
+                if(resultSet.getString(name)==null)
+                	continue;
 				invoke(instance, resultSet.getString(name), field);
 			}
 
@@ -168,6 +168,8 @@ public class SecureDao extends BaseDao {
 			for (Map.Entry<String, Field> entry : fields.entrySet()) {
 				String name = entry.getKey();
 				Field field = entry.getValue();
+                if(resultSet.getString(name)==null)
+                	continue;
 				invoke(instance, resultSet.getString(name), field);
 			}
 
@@ -266,8 +268,8 @@ public class SecureDao extends BaseDao {
 	 * @param o input object
 	 * @param setCols cols
 	 * @param condCols cols values
-     * @throws Exception
-     */
+	 * @throws Exception
+	 */
 	public static void update(Object o, String[] setCols, String[] condCols)
 			throws Exception {
 		Class clazz = o.getClass();
@@ -359,7 +361,6 @@ public class SecureDao extends BaseDao {
 		List<String> values = new LinkedList<String>();
 		// 再遍历一边添加where条件
 		for (Map.Entry<String, Field> entry : fields.entrySet()) {
-			String name = entry.getKey();
 			Field field = entry.getValue();
 			String invoke = toString(o, field);
 			// 如果属性有值
@@ -378,7 +379,7 @@ public class SecureDao extends BaseDao {
 	 * @param sql sql statement
 	 * @param values
 	 * @throws Exception
-     */
+	 */
 	public static void execute(String sql, List<String> values)
 			throws Exception {
 		PreparedStatement pstat = getConnection().prepareStatement(sql);

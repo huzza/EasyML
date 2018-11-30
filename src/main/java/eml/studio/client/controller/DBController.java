@@ -5,11 +5,16 @@
  */
 package eml.studio.client.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import eml.studio.client.mvp.AppController;
+import eml.studio.client.mvp.presenter.MonitorPresenter.View;
 import eml.studio.client.mvp.presenter.Presenter;
+import eml.studio.client.rpc.AesService;
+import eml.studio.client.rpc.AesServiceAsync;
 import eml.studio.client.rpc.CategoryService;
 import eml.studio.client.rpc.CategoryServiceAsync;
 import eml.studio.client.rpc.DatasetService;
@@ -19,6 +24,7 @@ import eml.studio.client.rpc.ProgramServiceAsync;
 import eml.studio.client.ui.binding.DatasetBinder;
 import eml.studio.client.ui.panel.component.DescribeGrid;
 import eml.studio.client.ui.binding.ProgramBinder;
+import eml.studio.client.ui.panel.DataTypeSelectPanel;
 import eml.studio.client.ui.panel.EditDatasetPanel;
 import eml.studio.client.ui.panel.EditProgramPanel;
 import eml.studio.client.ui.panel.PreviewPopupPanel;
@@ -36,6 +42,7 @@ import eml.studio.client.ui.widget.shape.OutNodeShape;
 import eml.studio.client.util.Constants;
 import eml.studio.shared.model.Dataset;
 import eml.studio.shared.model.Program;
+import eml.studio.shared.util.DatasetType;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -53,7 +60,7 @@ public class DBController {
 	public static ProgramServiceAsync programSrv = GWT.create(ProgramService.class);
 	public static DatasetServiceAsync datasetSrv = GWT.create(DatasetService.class);
 	public static CategoryServiceAsync categorySrv = GWT.create(CategoryService.class);
-	
+	public static AesServiceAsync aesSrv = GWT.create(AesService.class);
 	public static ProgramBinder programBinder = GWT.create(ProgramBinder.class);
 	public static DatasetBinder datasetBinder = GWT.create(DatasetBinder.class);
 	private static Logger logger = Logger.getLogger(DBController.class.getName());
@@ -68,8 +75,8 @@ public class DBController {
 	 * @return  If submit is success
 	 * @throws CommandParseException
 	 */
-	public boolean submitUploadProgram2DB(final Presenter presenter, final UploadFileModule fileUploader,
-										  Program program, final DescribeGrid grid)
+	public boolean submitUploadProgram2DB(final Presenter presenter,  final View view, final UploadFileModule fileUploader,
+			Program program, final DescribeGrid grid)
 					throws CommandParseException {
 		String name = grid.getText("Name");
 		if (name == null || "".equals(name)) {
@@ -104,6 +111,11 @@ public class DBController {
 			@Override
 			public void onSuccess(Program result) {
 				fileUploader.setUpLoadProgram(result);
+				ProgramLeaf node = new ProgramLeaf(result);
+				ProgramTreeLoader.addContextMenu( view.getProgramTree(),
+						node);
+				ProgramTreeLoader.addProgramLeaf( view.getProgramTree(),
+						node,AppController.email);
 				logger.info("Program insert to DB:"+result.getCategory());
 			}
 		});
@@ -118,7 +130,7 @@ public class DBController {
 	 * @return  If submit is success
 	 * @throws CommandParseException
 	 */
-	public boolean submitUploadDataset2DB(final Presenter presenter,final UploadFileModule fileUploader
+	public boolean submitUploadDataset2DB(final Presenter presenter,final View view, final UploadFileModule fileUploader
 			,Dataset dataset, DescribeGrid grid)
 					throws CommandParseException {
 		String name = grid.getText("Name");
@@ -142,6 +154,12 @@ public class DBController {
 			@Override
 			public void onSuccess(Dataset result) {
 				fileUploader.setUpLoadDataset(result);
+				DatasetLeaf node = new DatasetLeaf(result);
+				DatasetTreeLoader.addContextMenu( view.getDatasetTree()
+						,node);
+				DatasetTreeLoader.addDatasetLeaf( view.getDatasetTree(),
+						node,AppController.email);
+				logger.info("Dataset insert to DB:"+result.getCategory());
 			}
 		});
 		return true;
@@ -443,12 +461,14 @@ public class DBController {
 		String TypeString = program.getType();
 		logger.info(TypeString.toLowerCase());
 		if ("单机".equals(TypeString.toLowerCase()) || "standalone".equals(TypeString.toLowerCase()))
-			values[i] = Constants.studioUIMsg.standalone() + "/" + Constants.studioUIMsg.distributed()+"/ETL";
+			values[i] = Constants.studioUIMsg.standalone() + "/" + Constants.studioUIMsg.distributed()+"/ETL"+"/Tensorflow";
 		if ("spark".equals(TypeString) || "分布式".equals(TypeString) ||TypeString.equals("distributed")||TypeString.toLowerCase().equals("distributed")) {
-			values[i] = Constants.studioUIMsg.distributed() + "/" + Constants.studioUIMsg.standalone() + "/ETL";
+			values[i] = Constants.studioUIMsg.distributed() + "/" + Constants.studioUIMsg.standalone() + "/ETL"+"/Tensorflow";
 		}
 		if ("etl".equals(TypeString))
-			values[i] = "ETL/"+Constants.studioUIMsg.distributed() + "/" + Constants.studioUIMsg.standalone();
+			values[i] = "ETL/"+Constants.studioUIMsg.distributed() + "/" + Constants.studioUIMsg.standalone()+"/Tensorflow";
+		if("tensorflow".equals(TypeString))
+			values[i] = "Tensorflow/"+Constants.studioUIMsg.distributed() + "/" + Constants.studioUIMsg.standalone()+"/ETL";
 
 		i ++;
 
@@ -479,6 +499,16 @@ public class DBController {
 		values[i++] = program.getDescription();
 		values[i++] = program.getCommandline();
 
+		String tensorflowMode = program.getTensorflowMode();
+		if("单机".equals(tensorflowMode) || "standalone".equals(tensorflowMode))
+			values[i] = Constants.studioUIMsg.standalone()+"/"+Constants.studioUIMsg.modelDistributed()+"/"+Constants.studioUIMsg.dataDistributed();
+		else if("模型分布".equals(tensorflowMode) || "model distributed".equals(tensorflowMode))
+			values[i] = Constants.studioUIMsg.modelDistributed()+"/"+Constants.studioUIMsg.standalone()+"/"+Constants.studioUIMsg.dataDistributed();
+		else if("数据分布".equals(tensorflowMode) || "data distributed".equals(tensorflowMode))
+			values[i] = Constants.studioUIMsg.dataDistributed()+"/"+Constants.studioUIMsg.standalone()+"/"+Constants.studioUIMsg.modelDistributed();
+		else 
+			values[i]= Constants.studioUIMsg.standalone()+"/"+Constants.studioUIMsg.modelDistributed()+"/"+Constants.studioUIMsg.dataDistributed();
+
 		return values;
 	}
 
@@ -504,10 +534,10 @@ public class DBController {
 
 		values[1] = null;
 		String TypeString = dataset.getContenttype();
-		if ("General".equals(TypeString)) values[2] = "General/TSV/CSV";
-		if ("TSV".equals(TypeString)) values[2] = "TSV/General/TSV";
-		if ("CSV".equals(TypeString)) values[2] = "CSV/General/TSV";
-		else values[2] = "General/TSV/CSV";
+		if (TypeString == null || TypeString.equals("") || "General".equals(TypeString)) values[2] = "General/CSV/TSV/JSON";
+		else if ("TSV".equals(TypeString)) values[2] = "TSV/General/CSV/JSON";
+		else if ("CSV".equals(TypeString)) values[2] = "CSV/General/TSV/JSON";
+		else values[2] = "JSON/General/TSV/CSV";
 		values[0] = dataset.getName();
 		values[5] = AppController.email;
 		values[6] = dataset.getDescription();
@@ -550,5 +580,64 @@ public class DBController {
 		// Set the current data's resource path
 		previewPopup.setSourceUrl( path );
 		previewPopup.center();
+	}
+
+	/**
+	 * Data Visualization
+	 * 
+	 * @param path  file path
+	 * @param fileId  fileId
+	 */
+	public static void showDataVisualPopup(final String path,String fileId){
+		//Data module visualization
+		if(path.contains("null"))
+		{
+			Window.alert("The results have not been produced yet!");
+			return;
+		}
+
+		datasetSrv.loadFile(path, new AsyncCallback<Dataset>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert("Loading data failed！");
+				logger.info(caught.getMessage());
+			}
+			@Override
+			public void onSuccess(Dataset result) {
+				if (result == null)
+					return;
+				if(result.getContenttype() == null)
+				{
+					Window.alert("Data type is not defined, please select the data type first！");
+					DataTypeSelectPanel dataSelectPanel = new DataTypeSelectPanel(path,result);
+					dataSelectPanel.getDescLabel().setText("Data Type Selection - " + result.getName());
+					dataSelectPanel.center();
+				}
+				else if(result.getContenttype().equals(DatasetType.GENERAL.getDesc()))
+					Window.alert("Visualization only support json、tsv、csv data type! ");
+				else
+				{
+					List<String> conts = new ArrayList<String>();
+					conts.add(path);
+					conts.add(result.getContenttype());
+					aesSrv.aesEncrypt(conts,  new AsyncCallback<List<String>>(){
+
+						@Override
+						public void onFailure(Throwable caught) {
+							// TODO Auto-generated method stub
+							logger.info(caught.getMessage());
+						}
+
+						@Override
+						public void onSuccess(List<String> result) {
+							// TODO Auto-generated method stub
+							Window.open("visualization.html?"+"path="+result.get(0)+"&type="+result.get(1), "BDA Visualization", "");
+						}
+						
+					});
+				}
+			}
+		});
 	}
 }

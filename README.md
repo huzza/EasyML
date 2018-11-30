@@ -69,16 +69,30 @@ The users may check the outputs of a node by right clicking the corresponding ou
 <img src="./img/Upload_Program.png" width="90%  alt="job_stdout"/>
 </div>
 
+## How to experience our system
+We apply an online service for you to experience our system. You can register your own account or use our official account to login the system. The website of the system is as belows:
+
+* Outside ICT, you can visit: [http://159.226.40.104:18080/dev/](http://159.226.40.104:18080/dev/ "http://159.226.40.104:18080/dev/")
+* Inside ICT, you can visit: [http://10.60.0.50:18080/dev/](http://10.60.0.50:18080/dev/ "http://10.60.0.50:18080/dev/")
+
+If you have any advice or problems when you expericen our system, welcome to contact us! You can leave us a message or give a email to `bdaict@hotmail.com`, thank you for your advice!
+
+## Papers and Presentations 
+1. [EasyML: Ease the Process of Machine Learning with Data Flow.](http://www.bigdatalab.ac.cn/~junxu/publications/SOSP2017-AISys-EasyML.pdf) SOSP AI System Workshop Shanghai Oct. 28, 2017 
+2. Tianyou Guo, Jun Xu, Xiaohui Yan, Jianpeng Hou, Ping Li, Zhaohui Li, Jiafeng Guo, and Xueqi Cheng. [Ease the Process of Machine Learning with Dataflow.](http://www.bigdatalab.ac.cn/~junxu/publications/CIKM2016_BDADemo.pdf) Proceedings of the 25th ACM International Conference on Information and Knowledge Management (CIKM '16), Indianapolis, USA, pp. 2437-2440, 2016.
+
 ## Acknowledgements
 The following people contributed to the development of the EasyML project：
 
-* **Jun Xu**, Institute of Computing Technolgy, Chinese Academy of Sciences. Homepage: http://www.bigdatalab.ac.cn/~junxu
-* **Xiaohui Yan**, Homepage: http://xiaohuiyan.github.io/ 
+* **Jun Xu**, Institute of Computing Technolgy, Chinese Academy of Sciences. Homepage: [http://www.bigdatalab.ac.cn/~junxu](http://www.bigdatalab.ac.cn/~junxu)
+* **Xiaohui Yan**, Homepage: [http://xiaohuiyan.github.io/](http://xiaohuiyan.github.io/) 
 * **Xinjie Chen**,  Institute of Computing Technolgy, Chinese Academy of Sciences
 * **Zhaohui Li**,  Institute of Computing Technolgy, Chinese Academy of Sciences
-* **Tianyou Guo**,  Institute of Computing Technolgy, Chinese Academy of Sciences
-* **Jianpeng Hou**,  Institute of Computing Technolgy, Chinese Academy of Sciences
-* **Ping Li**,  Institute of Computing Technolgy, Chinese Academy of Sciences
-* **Xueqi Cheng**, Institute of Computing Technolgy, Chinese Academy of Sciences. Homepage: http://www.bigdatalab.ac.cn/~cxq/
+* **Tianyou Guo**,  Sougou Inc
+* **Jianpeng Hou**,  Google China
+* **Ping Li**,  Tencent Wechat
+* **Jiashuo Cao**, Chengdu University of Information Technology
+* **Dong Huang**, University of Chinese Academy of Sciences
+* **Xueqi Cheng**, Institute of Computing Technolgy, Chinese Academy of Sciences. Homepage: [http://www.bigdatalab.ac.cn/~cxq/](http://www.bigdatalab.ac.cn/~cxq/)
 
 
